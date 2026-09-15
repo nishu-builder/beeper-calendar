@@ -1,7 +1,7 @@
 import { z } from "zod";
 const text = (max: number) => z.string().max(max).refine(v => !/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(v), "Unsupported control character");
 export const eventFields = z.object({
-  title: text(300).min(1).refine(v => !!v.trim(), "Title is required"),
+  title: text(300).refine(v => !!v.trim(), "Title is required"),
   description: text(8000), location: text(1000),
   start: z.string().datetime({ offset: true }), end: z.string().datetime({ offset: true }),
 }).strict();
@@ -23,7 +23,7 @@ export interface Snapshot { sha: string; calendar: Calendar; events: CalendarEve
 export type Stage = "review" | "submitting" | "pull_request" | "merging" | "awaiting_calendar" | "confirmed" | "closed";
 export interface Submission { branch: string; path: string; raw: string; baseSha: string; eventId: string; operationId?: string; pr?: number; prUrl?: string; headSha?: string; mergeSha?: string; }
 export interface QueueItem {
-  id: string; mode: "demo" | "live"; createdAt: string; updatedAt: string;
+  id: string; mode: "demo" | "live"; settings: Settings; createdAt: string; updatedAt: string;
   source: Message; context: Message[]; proposal: CalendarProposal; snapshot: Snapshot;
   target?: CalendarEvent; stage: Stage; submission?: Submission; lastError?: string; history: { at: string; text: string }[];
 }
