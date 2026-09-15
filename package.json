@@ -9,7 +9,9 @@
     "test": "vitest run --maxWorkers=2",
     "test:e2e": "playwright test",
     "check": "tsc -b",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@tauri-apps/api": "^2.8.0",
@@ -27,6 +29,7 @@
     "@vitejs/plugin-react": "^5.0.3",
     "typescript": "~5.9.2",
     "vite": "^7.1.5",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "prettier": "^3.6.2"
   }
 }
