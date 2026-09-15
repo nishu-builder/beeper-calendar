@@ -1,7 +1,7 @@
 name: Check desktop app
 on:
   push:
-    branches: [main, feat/desktop-app]
+    branches: [main, feat/desktop-app, feat/native-onboarding]
   pull_request:
   workflow_dispatch:
 permissions:
