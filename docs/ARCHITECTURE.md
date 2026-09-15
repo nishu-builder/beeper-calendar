@@ -41,7 +41,9 @@ The receipt schema is `{digest, status, eventId}`; the operation identity comes 
 
 Manual search uses up to 18 literal words and asks Beeper for at most 20 candidates. Context follows API-provided opaque cursors for at most four pages and passes at most 11 nearby messages. It never derives a cursor from a message ID or sort key. Long context bodies are truncated before inference.
 
-Ollama receives a strict JSON schema, bounded context/output settings, the source timestamp, selected time zone, optional existing event and current draft. Unresolved questions block submission. The model cannot choose a repository, calendar identity, event ID, credentials or executable tool.
+Ollama receives a structural JSON schema, bounded context/output settings, the source timestamp, selected time zone, optional existing event and current draft. Unresolved questions block submission. The model cannot choose a repository, calendar identity, event ID, credentials or executable tool.
+
+The decoder schema preserves object structure, required fields, enums, the small question-array limit and rejection of extra properties. String length bounds, patterns and format annotations are omitted from that wire schema because Ollama's grammar compiler can expand them into excessive repetitions and fail. The original strict Zod schema remains authoritative after decoding: all field lengths, RFC3339 timestamps, supported actions and event-order checks still apply before a proposal enters the review queue. Input and output budgets are unchanged.
 
 ## Known constraints
 
