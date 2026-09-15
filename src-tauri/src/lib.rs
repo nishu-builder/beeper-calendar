@@ -398,8 +398,14 @@ pub fn run() {
             connect_github_cli,
             shortcut_status
         ])
-        .run(tauri::generate_context!())
-        .expect("Beeper Calendar could not start");
+        .build(tauri::generate_context!())
+        .expect("Beeper Calendar could not start")
+        .run(|_app, _event| {
+            #[cfg(target_os = "macos")]
+            if matches!(_event, tauri::RunEvent::Reopen { .. }) {
+                show(_app, false);
+            }
+        });
 }
 #[cfg(test)]
 mod tests {

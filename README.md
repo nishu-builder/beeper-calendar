@@ -1,8 +1,13 @@
 # Beeper Calendar
 
+[![CI](https://github.com/nishu-builder/beeper-calendar/actions/workflows/check.yml/badge.svg)](https://github.com/nishu-builder/beeper-calendar/actions/workflows/check.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 A Mac-first desktop app that turns a copied Beeper message into a calendar proposal. It uses a local model, shows the source and event details, and waits for your approval before requesting a calendar change.
 
 Built with Tauri, React and TypeScript. No separate application daemon is required.
+
+![Beeper Calendar showing a completed synthetic calendar review](docs/images/demo.png)
 
 ## What it does
 
@@ -29,7 +34,11 @@ npm run dev
 
 Browser mode supports the demo only. Live credentials and connections are available exclusively in the desktop build.
 
-## Run the desktop app
+## Download
+
+[Download the macOS Apple Silicon preview](https://github.com/nishu-builder/beeper-calendar/releases/tag/v0.1.0). The download includes a disk image; drag the app into Applications. This preview is not notarized. macOS may require approving it in **System Settings → Privacy & Security → Open Anyway**.
+
+## Build the desktop app
 
 Requirements:
 
@@ -111,4 +120,4 @@ cargo clippy --locked -- -D warnings
 
 Unit/integration fixtures cover strict proposal validation, prompt-data isolation, ICS escaping and stable identities, source provenance, interrupted submissions, changed reviews, failed validation, and receipt/snapshot correlation. Browser tests exercise the complete synthetic review/approval/confirmation flow and restart recovery. Live calendar mutation tests are intentionally not part of CI.
 
-See [architecture](docs/ARCHITECTURE.md), [acceptance cases and roadmap](docs/ROADMAP.md), [security](SECURITY.md) and [contributing](CONTRIBUTING.md). This project is independent of Beeper, Google and Ollama.
+See [release verification](docs/RELEASE-VERIFICATION.md), [architecture](docs/ARCHITECTURE.md), [acceptance cases and roadmap](docs/ROADMAP.md), [security](SECURITY.md) and [contributing](CONTRIBUTING.md). This project is independent of Beeper, Google and Ollama.
