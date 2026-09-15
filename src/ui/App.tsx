@@ -89,6 +89,18 @@ export function App() {
   );
   useEffect(() => {
     if (!native.isDesktop) return;
+    void invoke<{ registered: boolean }>("shortcut_status")
+      .then((status) => {
+        if (!status.registered)
+          setNotice(
+            "Command–Shift–K is unavailable. Use the menu-bar capture action or Paste clipboard.",
+          );
+      })
+      .catch(() =>
+        setNotice(
+          "The shortcut status could not be checked. Use the menu bar to capture a message.",
+        ),
+      );
     const listeners = [
       listen("capture-message", () => void capture()),
       listen<string>("shortcut-unavailable", (e) => setNotice(e.payload)),
@@ -304,7 +316,7 @@ export function App() {
               <div>
                 <p className="eyebrow">FROM CONVERSATION TO CALENDAR</p>
                 <h1>Create a calendar proposal.</h1>
-                <p>Bring a message. Make a plan. Check every detail.</p>
+                <p>Review a copied Beeper message and prepare a calendar change.</p>
               </div>
               <div className="shortcut">
                 <kbd>⌘</kbd>

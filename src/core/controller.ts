@@ -87,28 +87,36 @@ export class Controller {
       throw new Error(
         "This source message already has a proposal in your activity. Open that proposal to continue.",
       );
-    const proposal = await services(settings).model.propose(source, context, adjustment, target);
-    const now = new Date().toISOString();
-    const item: QueueItem = {
-      id: crypto.randomUUID(),
-      mode: settings.mode,
-      settings,
-      createdAt: now,
-      updatedAt: now,
-      source,
-      context,
-      proposal,
-      snapshot: { ...snapshot, events: [] },
-      target,
-      stage: "review",
-      history: [
-        { at: now, text: "Draft created locally. Review the event details before submitting." },
-      ],
-    };
-    this.state.queue.unshift(item);
-    await this.save();
-    return item;
+    const key = [settings.mode, source.chatID, source.id].join("\0");
+    if (this.active.has(key)) throw new Error("This source message is already being processed.");
+    this.active.add(key);
+    try {
+      const proposal = await services(settings).model.propose(source, context, adjustment, target);
+      const now = new Date().toISOString();
+      const item: QueueItem = {
+        id: crypto.randomUUID(),
+        mode: settings.mode,
+        settings,
+        createdAt: now,
+        updatedAt: now,
+        source,
+        context,
+        proposal,
+        snapshot: { ...snapshot, events: [] },
+        target,
+        stage: "review",
+        history: [
+          { at: now, text: "Draft created locally. Review the event details before submitting." },
+        ],
+      };
+      this.state.queue.unshift(item);
+      await this.save();
+      return item;
+    } finally {
+      this.active.delete(key);
+    }
   }
+
   async edit(item: QueueItem, proposal: unknown) {
     if (item.stage !== "review")
       throw new Error(
