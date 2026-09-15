@@ -223,6 +223,11 @@ async fn service_request(request: Request) -> Result<Response, String> {
     })
 }
 struct StorageLock(Mutex<()>);
+struct ShortcutStatus(std::sync::atomic::AtomicBool);
+#[tauri::command]
+fn shortcut_status(status: tauri::State<ShortcutStatus>) -> serde_json::Value {
+    serde_json::json!({"registered": status.0.load(std::sync::atomic::Ordering::SeqCst)})
+}
 fn state_path(app: &tauri::AppHandle) -> Result<std::path::PathBuf, String> {
     let dir = app
         .path()
@@ -325,6 +330,7 @@ fn show(app: &tauri::AppHandle, capture: bool) {
 pub fn run() {
     tauri::Builder::default()
         .manage(StorageLock(Mutex::new(())))
+        .manage(ShortcutStatus(std::sync::atomic::AtomicBool::new(false)))
         .plugin(tauri_plugin_single_instance::init(|app, _, _| {
             show(app, false)
         }))
@@ -359,11 +365,14 @@ pub fn run() {
                 tray = tray.icon(icon.clone());
             }
             tray.build(app)?;
-            if app
+            let registered = app
                 .global_shortcut()
                 .register("CommandOrControl+Shift+K")
-                .is_err()
-            {
+                .is_ok();
+            app.state::<ShortcutStatus>()
+                .0
+                .store(registered, std::sync::atomic::Ordering::SeqCst);
+            if !registered {
                 let _ = app.emit(
                     "shortcut-unavailable",
                     "The shortcut is already in use. Use the menu bar instead.",
@@ -386,7 +395,8 @@ pub fn run() {
             read_clipboard,
             open_link,
             beeper_oauth::beeper_authorize,
-            connect_github_cli
+            connect_github_cli,
+            shortcut_status
         ])
         .run(tauri::generate_context!())
         .expect("Beeper Calendar could not start");
