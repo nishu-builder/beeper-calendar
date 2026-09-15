@@ -93,7 +93,7 @@ export function App() {
       .then((status) => {
         if (!status.registered)
           setNotice(
-            "Command–Shift–K is unavailable. Use the menu-bar capture action or Paste clipboard.",
+            "Command–Shift–U is unavailable. Use the menu-bar capture action or Paste clipboard.",
           );
       })
       .catch(() =>
@@ -321,7 +321,7 @@ export function App() {
               <div className="shortcut">
                 <kbd>⌘</kbd>
                 <kbd>⇧</kbd>
-                <kbd>K</kbd>
+                <kbd>U</kbd>
                 <span>Use copied message</span>
               </div>
             </div>

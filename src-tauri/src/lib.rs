@@ -367,7 +367,7 @@ pub fn run() {
             tray.build(app)?;
             let registered = app
                 .global_shortcut()
-                .register("CommandOrControl+Shift+K")
+                .register("CommandOrControl+Shift+U")
                 .is_ok();
             app.state::<ShortcutStatus>()
                 .0

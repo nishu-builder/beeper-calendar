@@ -6,7 +6,7 @@ Built with Tauri, React and TypeScript. No separate application daemon is requir
 
 ## What it does
 
-1. Copy a message in Beeper and press **Command–Shift–K**, or choose **Use copied message** from the menu bar.
+1. Copy a message in Beeper and press **Command–Shift–U**, or choose **Use copied message** from the menu bar.
 2. Select the matching message. Review the sender, date and nearby context.
 3. Choose a new event or an existing ordinary timed event to update.
 4. Let your local Ollama model draft the title, time, location and description. Edit the fields or refine the draft in plain language.

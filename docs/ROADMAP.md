@@ -25,7 +25,7 @@ Automated fixture coverage:
 Manual release checks to repeat on a target Mac:
 
 - Open the packaged app, hide/reopen through the menu bar, and quit.
-- Copy a synthetic Beeper message and invoke Command–Shift–K.
+- Copy a synthetic Beeper message and invoke Command–Shift–U.
 - Connect Beeper through its local OAuth consent screen.
 - Save GitHub access, discover a private calendar, and run read-only diagnostics.
 - Run a local structured model proposal with an explicit date and zone.
