@@ -8,6 +8,27 @@ import {
   proposalSchema,
   validateProposal,
 } from "../core/types";
+// Ollama's grammar compiler expands string length bounds into repetitions.
+// Large application limits can exceed its grammar cap and crash the runner.
+// Keep decoder constraints structural; validate the full contract after decoding.
+function decoderSchema(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(decoderSchema);
+  if (value === null || typeof value !== "object") return value;
+  const result: Record<string, unknown> = {};
+  for (const [key, child] of Object.entries(value)) {
+    if (["minLength", "maxLength", "format", "pattern"].includes(key)) continue;
+    if (
+      ["properties", "$defs", "definitions"].includes(key) &&
+      child &&
+      typeof child === "object"
+    ) {
+      result[key] = Object.fromEntries(
+        Object.entries(child).map(([name, schema]) => [name, decoderSchema(schema)]),
+      );
+    } else result[key] = decoderSchema(child);
+  }
+  return result;
+}
 export class LocalModel {
   constructor(
     private transport: Transport,
@@ -57,7 +78,7 @@ export class LocalModel {
       currentDraft: currentProposal || null,
       userAdjustment: adjustment.slice(0, 2000),
     };
-    const schema = zodToJsonSchema(proposalSchema, { $refStrategy: "none" });
+    const schema = decoderSchema(zodToJsonSchema(proposalSchema, { $refStrategy: "none" }));
     const response = await this.transport.request<{ message: { content: string } }>(
       "ollama",
       "/api/chat",

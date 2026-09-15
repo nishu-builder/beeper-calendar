@@ -56,6 +56,38 @@ describe("typed local proposals", () => {
     expect(JSON.parse(body.messages[1].content).source.text).toBe(source.text);
     expect(body.format.additionalProperties).toBe(false);
   });
+  it("sends decoder-safe structural constraints while rejecting oversized output locally", async () => {
+    let wire: any;
+    const transport: Transport = {
+      async request<T>(_service: Service, path: string, _method?: string, payload?: unknown) {
+        if (path === "/api/tags")
+          return {
+            models: [{ name: defaults.model, size: 5_000_000, details: { format: "gguf" } }],
+          } as T;
+        wire = payload;
+        return {
+          message: {
+            content: JSON.stringify({
+              ...proposal(),
+              event: { ...demoFields, description: "x".repeat(8001) },
+            }),
+          },
+        } as T;
+      },
+    };
+    await expect(
+      new LocalModel(transport, defaults).propose(demoMessage, [], ""),
+    ).rejects.toThrow();
+    const serialized = JSON.stringify(wire.format);
+    for (const unsupported of ["maxLength", "minLength", "format", "pattern"])
+      expect(serialized).not.toContain('"' + unsupported + '":');
+    expect(wire.format.type).toBe("object");
+    expect(wire.format.additionalProperties).toBe(false);
+    expect(wire.format.properties.event.additionalProperties).toBe(false);
+    expect(wire.format.properties.action.enum).toEqual(["create", "update"]);
+    expect(wire.format.properties.questions.maxItems).toBe(5);
+    expect(wire.options.num_predict).toBe(1800);
+  });
   it("rejects a model response that selects an unrequested update", async () => {
     const transport: Transport = {
       async request<T>(_s: Service, path: string) {
