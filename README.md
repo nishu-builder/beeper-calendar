@@ -33,7 +33,7 @@ Browser mode supports the demo only. Live credentials and connections are availa
 
 Requirements:
 
-- macOS 12 or later; Apple Silicon is recommended for local inference.
+- macOS 12.3 or later; Apple Silicon is recommended for local inference.
 - Node.js 22+, a current stable Rust toolchain and Xcode command-line tools.
 - [Beeper Desktop](https://www.beeper.com/download) with its Desktop API enabled.
 - [Ollama](https://ollama.com/download) and an installed model with structured JSON support.
