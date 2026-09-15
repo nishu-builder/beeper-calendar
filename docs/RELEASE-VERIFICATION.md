@@ -11,6 +11,7 @@ Verified on September 15, 2026 on an Apple Silicon Mac with macOS 26.6.2, Beeper
 - Beeper message lookup, bounded context, private calendar discovery and connection checks succeed.
 - The local model produces a validated event proposal with the explicit requested date and time zone.
 - A create rehearsal on a dedicated test calendar completed through the app: private pull request, trusted validation, explicit approval, merge, matching applied receipt, and matching refreshed Google Calendar snapshot. The app remained pending until that last check.
+- A subsequent update rehearsal exercised the same local-model and calendar adapters against the live bridge. It moved that test event, preserved its identity, and confirmed the matching receipt and refreshed snapshot. This second check used an integration harness rather than the native UI.
 - The test event had no attendees, and the bridge was configured to send no notifications. No Beeper messages were sent.
 
 ## Automated verification
