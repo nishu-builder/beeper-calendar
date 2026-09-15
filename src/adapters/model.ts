@@ -20,6 +20,34 @@ export class LocalModel {
     target?: CalendarEvent,
     currentProposal?: CalendarProposal,
   ): Promise<CalendarProposal> {
+    const inventory = await this.transport.request<{
+      models: {
+        name: string;
+        model?: string;
+        size?: number;
+        details?: { format?: string };
+        remote_host?: string;
+        remote_model?: string;
+      }[];
+    }>("ollama", "/api/tags");
+    const installed = inventory.models.find(
+      (m) => m.name === this.settings.model || m.model === this.settings.model,
+    );
+    if (!installed)
+      throw new Error(
+        "The selected model is not installed. Choose a downloaded model in Settings.",
+      );
+    if (
+      /cloud/i.test(installed.name) ||
+      installed.remote_host ||
+      installed.remote_model ||
+      installed.details?.format !== "gguf" ||
+      (installed.size || 0) < 1_000_000
+    ) {
+      throw new Error(
+        "Choose a downloaded local GGUF model. Remote and cloud-backed models are blocked.",
+      );
+    }
     const data = {
       now: new Date().toISOString(),
       timeZone: this.settings.timeZone,

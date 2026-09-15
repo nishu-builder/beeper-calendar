@@ -59,7 +59,7 @@ Closing the window keeps the app in the menu bar. Choose **Quit** there to stop 
 Open **Settings**:
 
 1. **Beeper:** enable the Desktop API in Beeper’s settings, keep its loopback address (normally `http://localhost:23373`), and click **Connect Beeper**. Complete the local consent flow. The app uses OAuth with PKCE and stores access in the system keychain.
-2. **Local model:** start Ollama and install a model, for example `ollama pull qwen2.5:7b-instruct`. Set the matching installed model name. Model requests are accepted only at a loopback HTTP address; there is no cloud fallback or model tool execution.
+2. **Local model:** start Ollama and install a model, for example `ollama pull qwen2.5:7b-instruct`. Set the matching installed model name. Model requests are accepted only at a loopback HTTP address; there is no cloud fallback or model tool execution. The model inventory must report downloaded GGUF weights; cloud-backed entries are rejected before any prompt is sent.
 3. **GitHub:** use an existing `gh auth login` session with **Use GitHub CLI sign-in**, or save a fine-grained repository token. The credential is kept in the native keychain. Token permissions: **Contents: read/write**, **Pull requests: read/write**, **Checks: read**, and **Commit statuses: read** for the private calendar data repository.
 4. Enter that data repository and its base branch. Click **Find calendars**, then select the intended calendar. Set your IANA time zone.
 5. Click **Check connections**. “Access saved” means a credential exists; only the connection check establishes whether it currently works.

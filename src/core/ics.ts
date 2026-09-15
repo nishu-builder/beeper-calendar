@@ -1,4 +1,4 @@
-import { Calendar, CalendarEvent, EventFields } from "./types";
+import { Calendar, CalendarEvent, EventFields, validateProposal } from "./types";
 export async function hash(value: string): Promise<string> {
   const bytes = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
   return [...new Uint8Array(bytes)].map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -89,6 +89,8 @@ export function parseEvent(path: string, raw: string, expectedCalendar: string):
     start: date(get("DTSTART")),
     end: date(get("DTEND")),
   };
+  validateProposal({ action: "update", event: fields, explanation: "", questions: [] });
+  if (!/^"[^"\r\n]+"$/.test(get("X-GCAL-ETAG"))) throw new Error("Invalid exported ETag.");
   return {
     id: get("X-GCAL-EVENT-ID"),
     uid: get("UID"),

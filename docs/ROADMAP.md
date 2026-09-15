@@ -35,7 +35,7 @@ Manual release checks to repeat on a target Mac:
 
 ## Next work
 
-1. Configurable shortcut and a persistent native shortcut availability indicator.
+1. Configurable shortcut (the default shortcut availability is already reported).
 2. Calendar paging/cache for larger snapshot repositories.
 3. A richer event editor with time-zone-aware controls and DST disambiguation.
 4. User-controlled history retention and encrypted local history.

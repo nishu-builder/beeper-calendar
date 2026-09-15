@@ -240,9 +240,7 @@ export class GitHubCalendar {
         "GitHub did not merge the reviewed change. Inspect the pull request before retrying.",
       );
   }
-  async inspect(
-    item: QueueItem,
-  ): Promise<{
+  async inspect(item: QueueItem): Promise<{
     stage: "pull_request" | "awaiting_calendar" | "confirmed" | "closed";
     detail: string;
   }> {

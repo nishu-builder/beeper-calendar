@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import bridgeFixture from "./fixtures/bridge-new-event.json";
 import {
   defaults,
   validateProposal,
@@ -36,6 +37,10 @@ describe("typed local proposals", () => {
     let body: any;
     const transport: Transport = {
       async request<T>(_service: Service, _path: string, _method?: string, payload?: unknown) {
+        if (_path === "/api/tags")
+          return {
+            models: [{ name: defaults.model, size: 5_000_000, details: { format: "gguf" } }],
+          } as T;
         body = payload;
         return { message: { content: JSON.stringify(proposal()) } } as T;
       },
@@ -53,7 +58,11 @@ describe("typed local proposals", () => {
   });
   it("rejects a model response that selects an unrequested update", async () => {
     const transport: Transport = {
-      async request<T>() {
+      async request<T>(_s: Service, path: string) {
+        if (path === "/api/tags")
+          return {
+            models: [{ name: defaults.model, size: 5_000_000, details: { format: "gguf" } }],
+          } as T;
         return { message: { content: JSON.stringify({ ...proposal(), action: "update" }) } } as T;
       },
     };
@@ -62,7 +71,35 @@ describe("typed local proposals", () => {
     );
   });
 });
+describe("local model inventory", () => {
+  it("blocks cloud-backed models before any prompt is sent", async () => {
+    const calls: string[] = [];
+    const transport: Transport = {
+      async request<T>(_s: Service, path: string) {
+        calls.push(path);
+        return {
+          models: [{ name: defaults.model, size: 200, remote_host: "https://ollama.com" }],
+        } as T;
+      },
+    };
+    await expect(new LocalModel(transport, defaults).propose(demoMessage, [], "")).rejects.toThrow(
+      "cloud-backed",
+    );
+    expect(calls).toEqual(["/api/tags"]);
+  });
+});
 describe("bridge-compatible ICS", () => {
+  it("matches the pinned bridge helper's golden new-event fixture", async () => {
+    const result = await newEvent(
+      bridgeFixture.calendar,
+      bridgeFixture.id,
+      bridgeFixture.fields,
+      bridgeFixture.createdAt,
+    );
+    expect(result.path).toBe(bridgeFixture.path);
+    expect(result.raw).toBe(bridgeFixture.raw);
+    expect(result.operationId).toBe(bridgeFixture.operationId);
+  });
   it("uses bridge-stable identities, escaping, and UTF-8 folding", async () => {
     const calendar = { version: 1, id: "calendar@example.test", summary: "Test", timeZone: "UTC" };
     const id = "72e4618b-5579-4329-9ec6-3d563dbb70d7";
@@ -178,6 +215,17 @@ describe("durable queue lifecycle", () => {
     await c.edit(item, { ...item.proposal, questions: [] });
     await c.submit(item);
     await expect(c.edit(item, item.proposal)).rejects.toThrow("fixed for review");
+  });
+  it("serializes duplicate inference requests for the same source", async () => {
+    const f = setup();
+    const c = new Controller(f.store, () => {});
+    const snapshot = await new DemoCalendar().snapshot();
+    const results = await Promise.allSettled([
+      c.propose(demoMessage, [], snapshot, ""),
+      c.propose(demoMessage, [], snapshot, ""),
+    ]);
+    expect(results.filter((r) => r.status === "fulfilled")).toHaveLength(1);
+    expect(c.state.queue).toHaveLength(1);
   });
   it("does not advance when local intent cannot be saved", async () => {
     const f = setup();
